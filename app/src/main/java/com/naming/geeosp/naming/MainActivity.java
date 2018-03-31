@@ -34,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
     int relatedWeight = 1;
     int adjectivesWeight = 1;
     String DEBUG = "DEBUG";
-    int maxDeep = 1;
+    int maxDeep = 2;
     RequestQueue queue;
     AnyChartView anyChartView;
     EditText editText;
@@ -76,14 +76,14 @@ public class MainActivity extends AppCompatActivity {
         Iterator<WordSet> it = wordHash.values().iterator();
         while (it.hasNext()) {
             WordSet s = it.next();
-            data.add(new CategoryValueDataEntry(s.x, "asia", s.value));
-
+            data.add(new CategoryValueDataEntry(s.x, s.category, s.value));
+;
         }
         tagCloud.setData(data);
         anyChartView.setChart(tagCloud);
     }
 
-    void requestWord(String myWord, final int currDeep) {
+    void requestWord(String myWord, final int currDeep, final String category) {
         Log.e(DEBUG, "requesting word: " + myWord);
         if (!wordHash.containsKey(myWord)) {
             requestedCounter.incrementAndGet();
@@ -94,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onResponse(JSONArray response) {
                     receivedCounter.incrementAndGet();
-                    for (int i = 0; i < response.length(); i++) {
+                    for (int i = 0; i < Math.min(10,response.length()); i++) {
                         Log.e("ResponseArray",
                                 "ResponseArray: "+response.toString());
                         try {
@@ -102,13 +102,13 @@ public class MainActivity extends AppCompatActivity {
                             JSONObject ob = response.getJSONObject(i);
                         Log.e("ResponseObject" ,
                                     "ResponseObject: "+ob.toString());
-                            if (currDeep < maxDeep) {
-                                requestWord(ob.getString("word"), currDeep + 1);
+                            if (currDeep < maxDeep&&!wordHash.containsKey(ob.getString("word"))) {
+                                requestWord(ob.getString("word"), currDeep + 1, category);
 
                             } else {
 
                             }
-                            addWord(ob.getString("word"), ob.getInt("score"));
+                            addWord(ob.getString("word"), ob.getInt("score"), category);
                         } catch (Exception e) {
                           Log.e("JSONException", e.getMessage());
                         }
@@ -133,7 +133,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    void addWord(String word, long value) {
+    void addWord(String word, long value, String category) {
 
         WordSet set;
         if (wordHash.containsKey(word)) {
@@ -142,6 +142,7 @@ public class MainActivity extends AppCompatActivity {
         } else {
             set = new WordSet();
             set.x = word;
+            set.category = category;
 
         }
         set.value += value;
@@ -157,7 +158,7 @@ public class MainActivity extends AppCompatActivity {
         for (int i = 0; i < words.length; i++) {
       //      addWord(words[i], 10000);
 
-            requestWord(words[i], 0);
+            requestWord(words[i], 0, words[i]);
         }
     }
 }
