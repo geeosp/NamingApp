@@ -5,6 +5,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -18,6 +19,7 @@ import com.anychart.anychart.CategoryValueDataEntry;
 import com.anychart.anychart.DataEntry;
 import com.anychart.anychart.OrdinalColor;
 import com.anychart.anychart.TagCloud;
+import com.anychart.anychart.TagCloudMode;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -37,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
     int maxDeep = 2;
     RequestQueue queue;
     AnyChartView anyChartView;
-    EditText editText;
+    EditText editText;    TextView debugText;
     HashMap<String, WordSet> wordHash;
     AtomicInteger requestedCounter;
     AtomicInteger receivedCounter;
@@ -52,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
         anyChartView = findViewById(R.id.any_chart_view);
 
         editText = findViewById(R.id.words);
+        debugText=findViewById(R.id.debugText);
         wordHash = new HashMap<>();
         //geo    updateChart();
     }
@@ -67,10 +70,11 @@ public class MainActivity extends AppCompatActivity {
                 "#26959f", "#f18126", "#3b8ad8", "#60727b", "#e24b26"
         });
         tagCloud.setColorScale(ordinalColor);
-        tagCloud.setAngles(new Double[]{-90d, 0d, 90d});
+        tagCloud.setAngles(new Double[]{0d, 0d, 0d});
 
         tagCloud.getColorRange().setEnabled(true);
         tagCloud.getColorRange().setColorLineSize(15d);
+//tagCloud.setMode(TagCloudMode.RECT);
 
         List<DataEntry> data = new ArrayList<>();
         Iterator<WordSet> it = wordHash.values().iterator();
@@ -108,6 +112,7 @@ public class MainActivity extends AppCompatActivity {
                             } else {
 
                             }
+                            debugText.setText(ob.getString("word"));
                             addWord(ob.getString("word"), ob.getInt("score"), category);
                         } catch (Exception e) {
                           Log.e("JSONException", e.getMessage());
